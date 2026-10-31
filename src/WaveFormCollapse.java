@@ -2,36 +2,37 @@ import java.util.*;
 
 public class WaveFormCollapse {
     private final int w, h;
-    private final List<Tile> tiles;
-    private final Tile[][] collapsed;
-    private Tile[][][] quantumList;   // [x][y][possible tiles]
+    private final List<WfcTile> WfcTiles;
+    private final WfcTile[][] collapsed;
+    private WfcTile[][][] quantumList;   // [x][y][possible WfcTiles]
 
     private final long seed;
-    private final Random rng;           // ← shared random generator
+    private final Random rng;
 
-    public WaveFormCollapse(int w, int h, List<Tile> tiles) {
-        this(w, h, tiles, System.currentTimeMillis(), null);   // default = random seed
+    public WaveFormCollapse(int w, int h, List<WfcTile> WfcTiles) {
+        this(w, h, WfcTiles, System.currentTimeMillis(), null);
     }
 
-    public WaveFormCollapse(int w, int h, List<Tile> tiles, List<PrePlacedTile> prePlaced) {
-        this(w, h, tiles, System.currentTimeMillis(), prePlaced);   // default = random seed
+    public WaveFormCollapse(int w, int h, List<WfcTile> WfcTiles, List<PrePlacedTile> prePlaced) {
+        this(w, h, WfcTiles, System.currentTimeMillis(), prePlaced);
     }
 
-    public WaveFormCollapse(int w, int h, List<Tile> tiles, long seed) {
-        this(w, h, tiles, seed, null);   // default = random seed
+    public WaveFormCollapse(int w, int h, List<WfcTile> WfcTiles, long seed) {
+        this(w, h, WfcTiles, seed, null);
     }
 
-    public WaveFormCollapse(int w, int h, List<Tile> tiles, long seed, List<PrePlacedTile> prePlaced) {
+    public WaveFormCollapse(int w, int h, List<WfcTile> WfcTiles, long seed, List<PrePlacedTile> prePlaced) {
         this.w = w;
         this.h = h;
-        this.tiles = new ArrayList<>(tiles);
-        this.collapsed = new Tile[w][h];
+        this.WfcTiles = new ArrayList<>(WfcTiles);
+        this.collapsed = new WfcTile[w][h];
         this.seed = seed;
         this.rng = new Random(seed);
         createQuantumList();
         if (prePlaced != null && !prePlaced.isEmpty()) {
             for (PrePlacedTile p : prePlaced) {
-                setTile(p.tile(), p.x(), p.y());            }
+                setWfcTile(p.WfcTile(), p.x(), p.y());
+            }
         }
     }
 
@@ -40,22 +41,23 @@ public class WaveFormCollapse {
     }
 
     private void createQuantumList() {
-        if (tiles.isEmpty()) {
-            throw new RuntimeException("No tiles provided.");
+        if (WfcTiles.isEmpty()) {
+            throw new RuntimeException("No WfcTiles provided.");
         }
-        quantumList = new Tile[w][h][];
+        quantumList = new WfcTile[w][h][];
         for (int x = 0; x < w; x++) {
             for (int y = 0; y < h; y++) {
-                quantumList[x][y] = tiles.toArray(new Tile[0]);
+                quantumList[x][y] = WfcTiles.toArray(new WfcTile[0]);
                 collapsed[x][y] = null;
             }
         }
     }
 
-    public void setTile(Tile tile, int x, int y){
-        if(x >= 0 && x <= w && y >= 0 && y <= h){
-            collapsed[x][y] = tile;
-            quantumList[x][y] = new Tile[]{tile};
+    public void setWfcTile(WfcTile WfcTile, int x, int y){
+        if(x >= 0 && x < w && y >= 0 && y < h){
+            collapsed[x][y] = WfcTile;
+            quantumList[x][y] = new WfcTile[]{WfcTile};
+            propagate(x, y);
         }
     }
 
@@ -97,18 +99,17 @@ public class WaveFormCollapse {
             }
         }
         if (candidates.isEmpty()) return null;
-
         // Random tie-break
         return candidates.get(rng.nextInt(candidates.size()));
     }
 
     private void collapse(int x, int y) {
-        Tile[] options = quantumList[x][y];
+        WfcTile[] options = quantumList[x][y];
         if (options.length == 0) return;
 
-        Tile chosen = options[rng.nextInt(options.length)];
+        WfcTile chosen = options[rng.nextInt(options.length)];
         collapsed[x][y] = chosen;
-        quantumList[x][y] = new Tile[]{chosen};
+        quantumList[x][y] = new WfcTile[]{chosen};
     }
 
     private void propagate(int startX, int startY) {
@@ -121,68 +122,60 @@ public class WaveFormCollapse {
             int y = cell[1];
 
             // Check all four directions
-            checkAndUpdateNeighbor(x, y, x - 1, y, "west");   // West neighbor of current
-            checkAndUpdateNeighbor(x, y, x, y - 1, "north");
-            checkAndUpdateNeighbor(x, y, x + 1, y, "east");
-            checkAndUpdateNeighbor(x, y, x, y + 1, "south");
+            checkAndUpdateNeighbor(x, y, x - 1, y, Direction.WEST);
+            checkAndUpdateNeighbor(x, y, x, y - 1, Direction.NORTH);
+            checkAndUpdateNeighbor(x, y, x + 1, y, Direction.EAST);
+            checkAndUpdateNeighbor(x, y, x, y + 1, Direction.SOUTH);
         }
     }
 
-    private void checkAndUpdateNeighbor(int cx, int cy, int nx, int ny, String direction) {
+    private void checkAndUpdateNeighbor(int cx, int cy, int nx, int ny, Direction direction) {
         if (nx < 0 || nx >= w || ny < 0 || ny >= h) return;
-        if (collapsed[nx][ny] != null) return; // already decided
+        if (collapsed[nx][ny] != null) return;
 
-        Tile[] currentOptions = quantumList[cx][cy];
+        WfcTile[] currentOptions = quantumList[cx][cy];
         if (currentOptions.length == 0) return;
 
-        Tile[] neighborOptions = quantumList[nx][ny];
-        List<Tile> newOptions = new ArrayList<>();
+        WfcTile[] neighborOptions = quantumList[nx][ny];
+        List<WfcTile> newOptions = new ArrayList<>();
 
-        for (Tile neighborTile : neighborOptions) {
+        for (WfcTile neighborWfcTile : neighborOptions) {
             boolean compatible = false;
-            for (Tile currentTile : currentOptions) {
-                if (isCompatible(currentTile, neighborTile, direction)) {
+            for (WfcTile currentWfcTile : currentOptions) {
+                if (isCompatible(currentWfcTile, neighborWfcTile, direction)) {
                     compatible = true;
                     break;
                 }
             }
             if (compatible) {
-                newOptions.add(neighborTile);
+                newOptions.add(neighborWfcTile);
             }
         }
 
         if (newOptions.size() < neighborOptions.length) {
-            quantumList[nx][ny] = newOptions.toArray(new Tile[0]);
-            // Re-queue the neighbor so its own neighbors get updated
-            // (simple version: we can just continue; more advanced versions use a real queue)
+            quantumList[nx][ny] = newOptions.toArray(new WfcTile[0]);
         }
     }
 
-    private boolean isCompatible(Tile a, Tile b, String directionFromAtoB) {
+    private boolean isCompatible(WfcTile a, WfcTile b, Direction directionFromAtoB) {
         return switch (directionFromAtoB) {
-            case "west"  -> a.getWestNeighbors().contains(b);
-            case "north" -> a.getNorthNeighbors().contains(b);
-            case "east"  -> a.getEastNeighbors().contains(b);
-            case "south" -> a.getSouthNeighbors().contains(b);
+            case WEST  -> a.getWestNeighbors().contains(b);
+            case NORTH -> a.getNorthNeighbors().contains(b);
+            case EAST  -> a.getEastNeighbors().contains(b);
+            case SOUTH -> a.getSouthNeighbors().contains(b);
             default -> false;
         };
     }
 
-    private Tile chooseRandomTile(Tile[] options) {
-        if (options == null || options.length == 0) return null;
-        int index = rng.nextInt(options.length);
-        return options[index];
-    }
-
     // ===== Utility =====
-    public Tile[][] getCollapsedGrid() {
+    public WfcTile[][] getCollapsedGrid() {
         return collapsed;
     }
 
     public void printGrid() {
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                Tile t = collapsed[x][y];
+                WfcTile t = collapsed[x][y];
                 System.out.print((t != null ? t.getName().charAt(0) : '?') + " ");
             }
             System.out.println();
