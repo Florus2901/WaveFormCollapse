@@ -9,6 +9,8 @@ public class WaveFormCollapse {
     private final long seed;
     private final Random rng;
 
+    private Queue<int[]> propagationQueue;
+
     public WaveFormCollapse(int w, int h, List<WfcTile> WfcTiles) {
         this(w, h, WfcTiles, System.currentTimeMillis(), null);
     }
@@ -47,7 +49,7 @@ public class WaveFormCollapse {
         quantumList = new WfcTile[w][h][];
         for (int x = 0; x < w; x++) {
             for (int y = 0; y < h; y++) {
-                quantumList[x][y] = WfcTiles.toArray(new WfcTile[0]);
+                quantumList[x][y] = WfcTiles.toArray(WfcTile[]::new);
                 collapsed[x][y] = null;
             }
         }
@@ -62,17 +64,16 @@ public class WaveFormCollapse {
     }
 
     // ===== Main loop =====
-    public void run() {
+    public boolean run() {
         while (true) {
             int[] cell = findLowestEntropyCell();
-            if (cell == null) break;
+            if (cell == null) {
+                return getCollapsedGrid() != null && !hasContradiction();
+            }
 
-            int x = cell[0];
-            int y = cell[1];
-            collapse(x, y);
-            propagate(x, y);
+            collapse(cell[0], cell[1]);
+            propagate(cell[0], cell[1]);
         }
-        System.out.println("WFC finished.");
     }
 
     // ===== Core WFC methods =====
@@ -113,11 +114,11 @@ public class WaveFormCollapse {
     }
 
     private void propagate(int startX, int startY) {
-        Queue<int[]> queue = new LinkedList<>();
-        queue.add(new int[]{startX, startY});
+        propagationQueue = new LinkedList<>();
+        propagationQueue.add(new int[]{startX, startY});
 
-        while (!queue.isEmpty()) {
-            int[] cell = queue.poll();
+        while (!propagationQueue.isEmpty()) {
+            int[] cell = propagationQueue.poll();
             int x = cell[0];
             int y = cell[1];
 
@@ -154,6 +155,7 @@ public class WaveFormCollapse {
 
         if (newOptions.size() < neighborOptions.length) {
             quantumList[nx][ny] = newOptions.toArray(new WfcTile[0]);
+            propagationQueue.add(new int[]{nx, ny});
         }
     }
 
@@ -165,6 +167,14 @@ public class WaveFormCollapse {
             case SOUTH -> a.getSouthNeighbors().contains(b);
             default -> false;
         };
+    }
+
+    private boolean hasContradiction() {
+        for (int x = 0; x < w; x++)
+            for (int y = 0; y < h; y++)
+                if (collapsed[x][y] == null && quantumList[x][y].length == 0)
+                    return true;
+        return false;
     }
 
     // ===== Utility =====
@@ -183,6 +193,6 @@ public class WaveFormCollapse {
     }
 
     public void printSeed(){
-        System.out.println("The seed:"+seed+" used.");
+        System.out.println("The seed:"+ getSeed() +" used.");
     }
 }
