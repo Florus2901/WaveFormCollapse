@@ -1,1 +1,1 @@
-public record PrePlacedTile(Tile WfcTile, int x, int y) { }
+public record PrePlacedTile(Tile WfcTile, int x, int y, int z) { }

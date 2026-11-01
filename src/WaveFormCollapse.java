@@ -1,39 +1,49 @@
 import java.util.*;
 
 public class WaveFormCollapse {
-    private final int w, h;
-    private final List<WfcTile> WfcTiles;
-    private final WfcTile[][] collapsed;
-    private WfcTile[][][] quantumList;   // [x][y][possible WfcTiles]
+    private final int w, h, d;
+    private final List<WfcTile> wfcTiles;
+    private final WfcTile[][][] collapsed; // [w][h][d]
+    private WfcTile[][][][] quantumList;   // [w][h][d][possible WfcTiles]
 
     private final long seed;
     private final Random rng;
 
     private Queue<int[]> propagationQueue;
 
-    public WaveFormCollapse(int w, int h, List<WfcTile> WfcTiles) {
-        this(w, h, WfcTiles, System.currentTimeMillis(), null);
+    // Handles 2d array's
+    public WaveFormCollapse(int w, int h, List<WfcTile> wfcTiles) {
+        this(w, h, 1, wfcTiles, System.currentTimeMillis(), null);
     }
 
-    public WaveFormCollapse(int w, int h, List<WfcTile> WfcTiles, List<PrePlacedTile> prePlaced) {
-        this(w, h, WfcTiles, System.currentTimeMillis(), prePlaced);
+    public WaveFormCollapse(int w, int h, List<WfcTile> wfcTiles, List<PrePlacedTile> prePlaced) {
+        this(w, h, 1, wfcTiles, System.currentTimeMillis(), prePlaced);
     }
 
-    public WaveFormCollapse(int w, int h, List<WfcTile> WfcTiles, long seed) {
-        this(w, h, WfcTiles, seed, null);
+    public WaveFormCollapse(int w, int h, List<WfcTile> wfcTiles, long seed) {
+        this(w, h, 1, wfcTiles, seed, null);
     }
 
-    public WaveFormCollapse(int w, int h, List<WfcTile> WfcTiles, long seed, List<PrePlacedTile> prePlaced) {
+    public WaveFormCollapse(int w, int h, List<WfcTile> wfcTiles, long seed, List<PrePlacedTile> prePlaced) {
+        this(w,h,1,wfcTiles, seed,prePlaced);
+    }
+    // Handles 3d array's
+    public WaveFormCollapse(int w, int h, int d, List<WfcTile> wfcTiles) {
+        this(w, h, d, wfcTiles, System.currentTimeMillis(), null);
+    }
+
+    public WaveFormCollapse(int w, int h, int d, List<WfcTile> wfcTiles, long seed, List<PrePlacedTile> prePlaced) {
         this.w = w;
         this.h = h;
-        this.WfcTiles = new ArrayList<>(WfcTiles);
-        this.collapsed = new WfcTile[w][h];
+        this.d = (d <= 0) ? 1 : d;
+        this.wfcTiles = new ArrayList<>(wfcTiles);
+        this.collapsed = new WfcTile[w][h][this.d];
         this.seed = seed;
         this.rng = new Random(seed);
         createQuantumList();
         if (prePlaced != null && !prePlaced.isEmpty()) {
             for (PrePlacedTile p : prePlaced) {
-                setWfcTile(p.WfcTile(), p.x(), p.y());
+                setWfcTile(p.WfcTile(), p.x(), p.y(), p.z());
             }
         }
     }
@@ -43,23 +53,56 @@ public class WaveFormCollapse {
     }
 
     private void createQuantumList() {
-        if (WfcTiles.isEmpty()) {
+        if (wfcTiles.isEmpty()) {
             throw new RuntimeException("No WfcTiles provided.");
         }
-        quantumList = new WfcTile[w][h][];
+        quantumList = new WfcTile[w][h][d][];
+        List<WfcTile> groundTiles = generateGroundList();
+        List<WfcTile> airTiles    = generateAirList();
+
         for (int x = 0; x < w; x++) {
             for (int y = 0; y < h; y++) {
-                quantumList[x][y] = WfcTiles.toArray(WfcTile[]::new);
-                collapsed[x][y] = null;
+                for (int z = 0; z < d; z++) {
+                    if(z == 0) {
+                        quantumList[x][y][z] = groundTiles.toArray(WfcTile[]::new);
+                    } else {
+                        quantumList[x][y][z] = airTiles.toArray(WfcTile[]::new);
+                    }
+                    collapsed[x][y][z] = null;
+                }
             }
         }
     }
 
-    public void setWfcTile(WfcTile WfcTile, int x, int y){
-        if(x >= 0 && x < w && y >= 0 && y < h){
-            collapsed[x][y] = WfcTile;
-            quantumList[x][y] = new WfcTile[]{WfcTile};
-            propagate(x, y);
+    public List<WfcTile> generateGroundList(){
+        List<WfcTile> nList = new ArrayList<>();
+        for(WfcTile tile : wfcTiles){
+            if(tile.isGround()){
+                nList.add(tile);
+            }
+        }
+        return nList;
+    }
+    public List<WfcTile> generateAirList(){
+        List<WfcTile> nList = new ArrayList<>();
+        for(WfcTile tile : wfcTiles){
+            if(tile.isAir()){
+                nList.add(tile);
+            }
+        }
+        return nList;
+    }
+
+
+    public void setWfcTile(WfcTile wfcTile, int x, int y) {
+        setWfcTile(wfcTile, x, y, 0);
+    }
+
+    public void setWfcTile(WfcTile wfcTile, int x, int y, int z){
+        if(x >= 0 && x < w && y >= 0 && y < h && z >= 0 && z < d){
+            collapsed[x][y][z] = wfcTile;
+            quantumList[x][y][z] = new WfcTile[]{wfcTile};
+            propagate(x, y, z);
         }
     }
 
@@ -71,8 +114,8 @@ public class WaveFormCollapse {
                 return getCollapsedGrid() != null && !hasContradiction();
             }
 
-            collapse(cell[0], cell[1]);
-            propagate(cell[0], cell[1]);
+            collapse(cell[0], cell[1], cell[2]);
+            propagate(cell[0], cell[1], cell[2]);
         }
     }
 
@@ -83,19 +126,21 @@ public class WaveFormCollapse {
 
         for (int x = 0; x < w; x++) {
             for (int y = 0; y < h; y++) {
-                if (collapsed[x][y] != null) continue;
+                for (int z = 0; z < d; z++) {
+                    if (collapsed[x][y][z] != null) continue;
 
-                int entropy = quantumList[x][y].length;
-                if (entropy == 0) {
-                    System.out.println("Contradiction at (" + x + "," + y + ")");
-                    return null;
-                }
-                if (entropy < minEntropy) {
-                    minEntropy = entropy;
-                    candidates.clear();
-                    candidates.add(new int[]{x, y});
-                } else if (entropy == minEntropy) {
-                    candidates.add(new int[]{x, y});
+                    int entropy = quantumList[x][y][z].length;
+                    if (entropy == 0) {
+                        System.out.println("Contradiction at (" + x + "," + y + "," + z + ")");
+                        return null;
+                    }
+                    if (entropy < minEntropy) {
+                        minEntropy = entropy;
+                        candidates.clear();
+                        candidates.add(new int[]{x, y, z});
+                    } else if (entropy == minEntropy) {
+                        candidates.add(new int[]{x, y, z});
+                    }
                 }
             }
         }
@@ -104,40 +149,43 @@ public class WaveFormCollapse {
         return candidates.get(rng.nextInt(candidates.size()));
     }
 
-    private void collapse(int x, int y) {
-        WfcTile[] options = quantumList[x][y];
+    private void collapse(int x, int y, int z) {
+        WfcTile[] options = quantumList[x][y][z];
         if (options.length == 0) return;
 
         WfcTile chosen = options[rng.nextInt(options.length)];
-        collapsed[x][y] = chosen;
-        quantumList[x][y] = new WfcTile[]{chosen};
+        collapsed[x][y][z] = chosen;
+        quantumList[x][y][z] = new WfcTile[]{chosen};
     }
 
-    private void propagate(int startX, int startY) {
+    private void propagate(int startX, int startY, int startZ) {
         propagationQueue = new LinkedList<>();
-        propagationQueue.add(new int[]{startX, startY});
+        propagationQueue.add(new int[]{startX, startY, startZ});
 
         while (!propagationQueue.isEmpty()) {
             int[] cell = propagationQueue.poll();
             int x = cell[0];
             int y = cell[1];
+            int z = cell[2];
 
-            // Check all four directions
-            checkAndUpdateNeighbor(x, y, x - 1, y, Direction.WEST);
-            checkAndUpdateNeighbor(x, y, x, y - 1, Direction.NORTH);
-            checkAndUpdateNeighbor(x, y, x + 1, y, Direction.EAST);
-            checkAndUpdateNeighbor(x, y, x, y + 1, Direction.SOUTH);
+            // Check all six directions
+            checkAndUpdateNeighbor(x, y, z, x - 1, y, z, Direction.WEST);
+            checkAndUpdateNeighbor(x, y, z, x, y - 1, z, Direction.NORTH);
+            checkAndUpdateNeighbor(x, y, z, x + 1, y, z, Direction.EAST);
+            checkAndUpdateNeighbor(x, y, z, x, y + 1, z, Direction.SOUTH);
+            checkAndUpdateNeighbor(x, y, z, x, y, z + 1, Direction.ABOVE);
+            checkAndUpdateNeighbor(x, y, z, x, y, z - 1, Direction.BELOW);
         }
     }
 
-    private void checkAndUpdateNeighbor(int cx, int cy, int nx, int ny, Direction direction) {
-        if (nx < 0 || nx >= w || ny < 0 || ny >= h) return;
-        if (collapsed[nx][ny] != null) return;
+    private void checkAndUpdateNeighbor(int cx, int cy, int cz, int nx, int ny, int nz, Direction direction) {
+        if (nx < 0 || nx >= w || ny < 0 || ny >= h || nz < 0 || nz >= d) return;
+        if (collapsed[nx][ny][nz] != null) return;
 
-        WfcTile[] currentOptions = quantumList[cx][cy];
+        WfcTile[] currentOptions = quantumList[cx][cy][cz];
         if (currentOptions.length == 0) return;
 
-        WfcTile[] neighborOptions = quantumList[nx][ny];
+        WfcTile[] neighborOptions = quantumList[nx][ny][nz];
         List<WfcTile> newOptions = new ArrayList<>();
 
         for (WfcTile neighborWfcTile : neighborOptions) {
@@ -154,8 +202,8 @@ public class WaveFormCollapse {
         }
 
         if (newOptions.size() < neighborOptions.length) {
-            quantumList[nx][ny] = newOptions.toArray(new WfcTile[0]);
-            propagationQueue.add(new int[]{nx, ny});
+            quantumList[nx][ny][nz] = newOptions.toArray(new WfcTile[0]);
+            propagationQueue.add(new int[]{nx, ny, nz});
         }
     }
 
@@ -165,6 +213,8 @@ public class WaveFormCollapse {
             case NORTH -> a.getNorthNeighbors().contains(b);
             case EAST  -> a.getEastNeighbors().contains(b);
             case SOUTH -> a.getSouthNeighbors().contains(b);
+            case ABOVE -> a.getAboveNeighbors().contains(b);
+            case BELOW -> a.getBelowNeighbors().contains(b);
             default -> false;
         };
     }
@@ -172,24 +222,55 @@ public class WaveFormCollapse {
     private boolean hasContradiction() {
         for (int x = 0; x < w; x++)
             for (int y = 0; y < h; y++)
-                if (collapsed[x][y] == null && quantumList[x][y].length == 0)
-                    return true;
+                for (int z = 0; z < d; z++)
+                    if (collapsed[x][y][z] == null && quantumList[x][y][z].length == 0)
+                        return true;
         return false;
     }
 
     // ===== Utility =====
-    public WfcTile[][] getCollapsedGrid() {
-        return collapsed;
+    public WfcTile[][][] getCollapsedGrid() {
+        WfcTile[][][] copy = new WfcTile[w][h][d];
+        for (int x = 0; x < w; x++)
+            for (int y = 0; y < h; y++)
+                for (int z = 0; z < d; z++)
+                    copy[x][y][z] = collapsed[x][y][z];
+        return copy;
     }
 
+    // legacy / 2-D only
     public void printGrid() {
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                WfcTile t = collapsed[x][y];
+                WfcTile t = collapsed[x][y][0];
                 System.out.print((t != null ? t.getName().charAt(0) : '?') + " ");
             }
             System.out.println();
         }
+    }
+
+    public String getGridAsJsonString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n  \"grid\": [\n");
+        for (int z = 0; z < d; z++) {
+            sb.append("    [\n");
+            for (int y = 0; y < h; y++) {
+                sb.append("      [");
+                for (int x = 0; x < w; x++) {
+                    WfcTile t = collapsed[x][y][z];
+                    sb.append(t != null ? "\"" + t.getName() + "\"" : "null");
+                    if (x < w - 1) sb.append(", ");
+                }
+                sb.append("]");
+                if (y < h - 1) sb.append(",");
+                sb.append("\n");
+            }
+            sb.append("    ]");
+            if (z < d - 1) sb.append(",");
+            sb.append("\n");
+        }
+        sb.append("  ]\n}");
+        return sb.toString();
     }
 
     public void printSeed(){
