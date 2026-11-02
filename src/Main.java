@@ -4,8 +4,7 @@ import java.util.List;
 public class Main {
 
     public static List<WfcTile> tiles;
-    public static int w = 10, h = 10, d = 3;
-    public static Tile[][] grid;
+    public static int w = 10, h = 10, d = 4;
     public static WaveFormCollapse wfc;
 
     public static void main(String[] args) {
@@ -26,105 +25,7 @@ public class Main {
         tiles.add(air);
         tiles.add(cloud);
 
-        // ===== WATER =====
-        water.addNeighborToTheWest(water);
-        water.addNeighborToTheNorth(water);
-        water.addNeighborToTheAbove(air);
-
-        water.addNeighborToTheWest(grass);
-        water.addNeighborToTheNorth(grass);
-        water.addNeighborToTheEast(grass);
-        water.addNeighborToTheSouth(grass);
-
-// ===== GRASS =====
-        grass.addNeighborToTheWest(grass);
-        grass.addNeighborToTheNorth(grass);
-        grass.addNeighborToTheAbove(air);
-
-        grass.addNeighborToTheWest(forest);
-        grass.addNeighborToTheNorth(forest);
-        grass.addNeighborToTheEast(forest);
-        grass.addNeighborToTheSouth(forest);
-
-        grass.addNeighborToTheWest(hills);
-        grass.addNeighborToTheNorth(hills);
-        grass.addNeighborToTheEast(hills);
-        grass.addNeighborToTheSouth(hills);
-
-// ===== FOREST =====
-        forest.addNeighborToTheWest(forest);
-        forest.addNeighborToTheNorth(forest);
-        forest.addNeighborToTheAbove(air);
-
-        forest.addNeighborToTheWest(hills);
-        forest.addNeighborToTheNorth(hills);
-        forest.addNeighborToTheEast(hills);
-        forest.addNeighborToTheSouth(hills);
-
-// ===== HILLS =====
-        hills.addNeighborToTheWest(hills);
-        hills.addNeighborToTheNorth(hills);
-        hills.addNeighborToTheAbove(air);
-
-        hills.addNeighborToTheWest(mountain);
-        hills.addNeighborToTheNorth(mountain);
-        hills.addNeighborToTheEast(mountain);
-        hills.addNeighborToTheSouth(mountain);
-
-// ===== MOUNTAIN =====
-        mountain.addNeighborToTheWest(mountain);
-        mountain.addNeighborToTheNorth(mountain);
-        mountain.addNeighborToTheEast(mountain);
-        mountain.addNeighborToTheSouth(mountain);
-        mountain.addNeighborToTheSouth(air);
-        mountain.addNeighborToTheSouth(cloud);
-
-        mountain.addNeighborToTheWest(hills);
-        mountain.addNeighborToTheNorth(hills);
-        mountain.addNeighborToTheEast(hills);
-        mountain.addNeighborToTheSouth(hills);
-
-// ===== AIR (sky layer) =====
-        air.addNeighborToTheWest(air);
-        air.addNeighborToTheNorth(air);
-        air.addNeighborToTheEast(air);
-        air.addNeighborToTheSouth(air);
-
-        air.addNeighborToTheWest(cloud);
-        air.addNeighborToTheNorth(cloud);
-        air.addNeighborToTheEast(cloud);
-        air.addNeighborToTheSouth(cloud);
-
-
-// Air can sit above any land tile
-        air.addNeighborToTheBelow(water);
-        air.addNeighborToTheBelow(grass);
-        air.addNeighborToTheBelow(forest);
-        air.addNeighborToTheBelow(hills);
-        air.addNeighborToTheBelow(mountain);
-
-// Air can also be directly below Cloud (stacked sky)
-        air.addNeighborToTheAbove(air);
-        air.addNeighborToTheAbove(cloud);
-
-// ===== CLOUD =====
-        cloud.addNeighborToTheWest(cloud);
-        cloud.addNeighborToTheNorth(cloud);
-        cloud.addNeighborToTheEast(cloud);
-        cloud.addNeighborToTheSouth(cloud);
-
-        cloud.addNeighborToTheWest(air);
-        cloud.addNeighborToTheNorth(air);
-        cloud.addNeighborToTheEast(air);
-        cloud.addNeighborToTheSouth(air);
-
-// Cloud is only allowed directly above Air or Mountain
-        cloud.addNeighborToTheBelow(air);
-        cloud.addNeighborToTheBelow(mountain);
-
-// Cloud can have Air directly above it
-        cloud.addNeighborToTheAbove(air);
-
+        generateTileNeighbors(tiles);
 
         List<PrePlacedTile> forcedWater = List.of(
                 new PrePlacedTile(water, 0, 0, 0),
@@ -139,11 +40,91 @@ public class Main {
                 new PrePlacedTile(water, 9, 0, 0)
         );
 
-        wfc = new WaveFormCollapse(w,h, d, tiles);
+        wfc = new WaveFormCollapse(w,h, d, tiles );
 //        wfc.setWfcTile(water, 0, 0, 0);
 //        wfc.setWfcTile(mountain, 0, 1);
         wfc.run();
         System.out.println(wfc.getGridAsJsonString());
         wfc.printSeed();
     }
+
+    private static void generateTileNeighbors(List<WfcTile> tiles){
+        for(WfcTile tile : tiles){
+            for(WfcTile neighbors : tiles) {
+                if(tile.isGround() && neighbors.isGround() || tile.isAir() && neighbors.isAir()){
+                    tile.addNeighborToTheNorth(neighbors);
+                    tile.addNeighborToTheWestNorth(neighbors);
+                    tile.addNeighborToTheWest(neighbors);
+                    tile.addNeighborToTheWestSouth(neighbors);
+                    tile.addNeighborToTheSouth(neighbors);
+                    tile.addNeighborToTheEastSouth(neighbors);
+                    tile.addNeighborToTheEast(neighbors);
+                    tile.addNeighborToTheEastNorth(neighbors);
+                }
+                if(tile.isGround() && neighbors.isGround()){
+                    tile.addNeighborToTheBelow(neighbors);
+                    tile.addNeighborToTheNorthBelow(neighbors);
+                    tile.addNeighborToTheEastNorthBelow(neighbors);
+                    tile.addNeighborToTheEastBelow(neighbors);
+                    tile.addNeighborToTheEastSouthBelow(neighbors);
+                    tile.addNeighborToTheSouthBelow(neighbors);
+                    tile.addNeighborToTheWestSouthBelow(neighbors);
+                    tile.addNeighborToTheWestBelow(neighbors);
+                    tile.addNeighborToTheWestNorthBelow(neighbors);
+                    tile.addNeighborToTheAbove(neighbors);
+                    tile.addNeighborToTheNorthAbove(neighbors);
+                    tile.addNeighborToTheEastNorthAbove(neighbors);
+                    tile.addNeighborToTheEastAbove(neighbors);
+                    tile.addNeighborToTheEastSouthAbove(neighbors);
+                    tile.addNeighborToTheSouthAbove(neighbors);
+                    tile.addNeighborToTheWestSouthAbove(neighbors);
+                    tile.addNeighborToTheWestAbove(neighbors);
+                    tile.addNeighborToTheWestNorthAbove(neighbors);
+                }
+                if(tile.isAir() && neighbors.isAir()){
+                    tile.addNeighborToTheAbove(neighbors);
+                    tile.addNeighborToTheNorthAbove(neighbors);
+                    tile.addNeighborToTheEastNorthAbove(neighbors);
+                    tile.addNeighborToTheEastAbove(neighbors);
+                    tile.addNeighborToTheEastSouthAbove(neighbors);
+                    tile.addNeighborToTheSouthAbove(neighbors);
+                    tile.addNeighborToTheWestSouthAbove(neighbors);
+                    tile.addNeighborToTheWestAbove(neighbors);
+                    tile.addNeighborToTheWestNorthAbove(neighbors);
+                    tile.addNeighborToTheBelow(neighbors);
+                    tile.addNeighborToTheNorthBelow(neighbors);
+                    tile.addNeighborToTheEastNorthBelow(neighbors);
+                    tile.addNeighborToTheEastBelow(neighbors);
+                    tile.addNeighborToTheEastSouthBelow(neighbors);
+                    tile.addNeighborToTheSouthBelow(neighbors);
+                    tile.addNeighborToTheWestSouthBelow(neighbors);
+                    tile.addNeighborToTheWestBelow(neighbors);
+                    tile.addNeighborToTheWestNorthBelow(neighbors);
+                }
+                if(tile.isGround() && neighbors.isAir()){
+                    tile.addNeighborToTheAbove(neighbors);
+                    tile.addNeighborToTheNorthAbove(neighbors);
+                    tile.addNeighborToTheEastNorthAbove(neighbors);
+                    tile.addNeighborToTheEastAbove(neighbors);
+                    tile.addNeighborToTheEastSouthAbove(neighbors);
+                    tile.addNeighborToTheSouthAbove(neighbors);
+                    tile.addNeighborToTheWestSouthAbove(neighbors);
+                    tile.addNeighborToTheWestAbove(neighbors);
+                    tile.addNeighborToTheWestNorthAbove(neighbors);
+                }
+                if(tile.isAir() && neighbors.isGround()){
+                    tile.addNeighborToTheBelow(neighbors);
+                    tile.addNeighborToTheNorthBelow(neighbors);
+                    tile.addNeighborToTheEastNorthBelow(neighbors);
+                    tile.addNeighborToTheEastBelow(neighbors);
+                    tile.addNeighborToTheEastSouthBelow(neighbors);
+                    tile.addNeighborToTheSouthBelow(neighbors);
+                    tile.addNeighborToTheWestSouthBelow(neighbors);
+                    tile.addNeighborToTheWestBelow(neighbors);
+                    tile.addNeighborToTheWestNorthBelow(neighbors);
+                }
+            }
+        }
+    }
+
 }

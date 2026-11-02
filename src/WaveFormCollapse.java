@@ -169,12 +169,14 @@ public class WaveFormCollapse {
             int z = cell[2];
 
             // Check all six directions
-            checkAndUpdateNeighbor(x, y, z, x - 1, y, z, Direction.WEST);
-            checkAndUpdateNeighbor(x, y, z, x, y - 1, z, Direction.NORTH);
-            checkAndUpdateNeighbor(x, y, z, x + 1, y, z, Direction.EAST);
-            checkAndUpdateNeighbor(x, y, z, x, y + 1, z, Direction.SOUTH);
-            checkAndUpdateNeighbor(x, y, z, x, y, z + 1, Direction.ABOVE);
-            checkAndUpdateNeighbor(x, y, z, x, y, z - 1, Direction.BELOW);
+            for (int dir = 0; dir < 26; dir++) {
+                int nx = x + DELTAS[dir][0];
+                int ny = y + DELTAS[dir][1];
+                int nz = z + DELTAS[dir][2];
+                Direction direction = Direction.values()[dir];
+
+                checkAndUpdateNeighbor(x, y, z, nx, ny, nz, direction);
+            }
         }
     }
 
@@ -215,6 +217,28 @@ public class WaveFormCollapse {
             case SOUTH -> a.getSouthNeighbors().contains(b);
             case ABOVE -> a.getAboveNeighbors().contains(b);
             case BELOW -> a.getBelowNeighbors().contains(b);
+
+            case WEST_NORTH  -> a.getWestNorthNeighbors().contains(b);
+            case WEST_SOUTH  -> a.getWestSouthNeighbors().contains(b);
+            case EAST_NORTH  -> a.getEastNorthNeighbors().contains(b);
+            case EAST_SOUTH  -> a.getEastSouthNeighbors().contains(b);
+            case WEST_ABOVE  -> a.getWestAboveNeighbors().contains(b);
+            case WEST_BELOW  -> a.getWestBelowNeighbors().contains(b);
+            case EAST_ABOVE  -> a.getEastAboveNeighbors().contains(b);
+            case EAST_BELOW  -> a.getEastBelowNeighbors().contains(b);
+            case NORTH_ABOVE -> a.getNorthAboveNeighbors().contains(b);
+            case NORTH_BELOW -> a.getNorthBelowNeighbors().contains(b);
+            case SOUTH_ABOVE -> a.getSouthAboveNeighbors().contains(b);
+            case SOUTH_BELOW -> a.getSouthBelowNeighbors().contains(b);
+
+            case WEST_NORTH_ABOVE -> a.getWestNorthAboveNeighbors().contains(b);
+            case WEST_NORTH_BELOW -> a.getWestNorthBelowNeighbors().contains(b);
+            case WEST_SOUTH_ABOVE -> a.getWestSouthAboveNeighbors().contains(b);
+            case WEST_SOUTH_BELOW -> a.getWestSouthBelowNeighbors().contains(b);
+            case EAST_NORTH_ABOVE -> a.getEastNorthAboveNeighbors().contains(b);
+            case EAST_NORTH_BELOW -> a.getEastNorthBelowNeighbors().contains(b);
+            case EAST_SOUTH_ABOVE -> a.getEastSouthAboveNeighbors().contains(b);
+            case EAST_SOUTH_BELOW -> a.getEastSouthBelowNeighbors().contains(b);
             default -> false;
         };
     }
@@ -237,6 +261,18 @@ public class WaveFormCollapse {
                     copy[x][y][z] = collapsed[x][y][z];
         return copy;
     }
+
+    private static final int[][] DELTAS = {
+            // Face (6)
+            {-1, 0, 0}, {0,-1,0}, {1,0,0}, {0,1,0}, {0,0,1}, {0,0,-1},
+            // Edge (12)
+            {-1,-1,0}, {-1,1,0}, {1,-1,0}, {1,1,0},
+            {-1,0,1}, {-1,0,-1}, {1,0,1}, {1,0,-1},
+            {0,-1,1}, {0,-1,-1}, {0,1,1}, {0,1,-1},
+            // Corner (8)
+            {-1,-1,1}, {-1,-1,-1}, {-1,1,1}, {-1,1,-1},
+            {1,-1,1}, {1,-1,-1}, {1,1,1}, {1,1,-1}
+    };
 
     // legacy / 2-D only
     public void printGrid() {
