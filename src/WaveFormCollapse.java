@@ -11,6 +11,29 @@ public class WaveFormCollapse {
 
     private Queue<int[]> propagationQueue;
 
+    private static final int[][] DELTAS = {
+            // Face (6)
+            {-1, 0, 0}, {0,-1,0}, {1,0,0}, {0,1,0}, {0,0,1}, {0,0,-1},
+            // Edge (12)
+            {-1,-1,0}, {-1,1,0}, {1,-1,0}, {1,1,0},
+            {-1,0,1}, {-1,0,-1}, {1,0,1}, {1,0,-1},
+            {0,-1,1}, {0,-1,-1}, {0,1,1}, {0,1,-1},
+            // Corner (8)
+            {-1,-1,1}, {-1,-1,-1}, {-1,1,1}, {-1,1,-1},
+            {1,-1,1}, {1,-1,-1}, {1,1,1}, {1,1,-1}
+    };
+    private static final Direction[] DIRECTIONS = {
+            Direction.WEST, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.ABOVE, Direction.BELOW,
+            Direction.WEST_NORTH, Direction.WEST_SOUTH, Direction.EAST_NORTH, Direction.EAST_SOUTH,
+            Direction.WEST_ABOVE, Direction.WEST_BELOW, Direction.EAST_ABOVE, Direction.EAST_BELOW,
+            Direction.NORTH_ABOVE, Direction.NORTH_BELOW, Direction.SOUTH_ABOVE, Direction.SOUTH_BELOW,
+            Direction.WEST_NORTH_ABOVE, Direction.WEST_NORTH_BELOW,
+            Direction.WEST_SOUTH_ABOVE, Direction.WEST_SOUTH_BELOW,
+            Direction.EAST_NORTH_ABOVE, Direction.EAST_NORTH_BELOW,
+            Direction.EAST_SOUTH_ABOVE, Direction.EAST_SOUTH_BELOW
+    };
+
+
     // Handles 2d array's
     public WaveFormCollapse(int w, int h, List<WfcTile> wfcTiles) {
         this(w, h, 1, wfcTiles, System.currentTimeMillis(), null);
@@ -159,7 +182,9 @@ public class WaveFormCollapse {
     }
 
     private void propagate(int startX, int startY, int startZ) {
-        propagationQueue = new LinkedList<>();
+        if(propagationQueue == null){
+            propagationQueue = new LinkedList<>();
+        }
         propagationQueue.add(new int[]{startX, startY, startZ});
 
         while (!propagationQueue.isEmpty()) {
@@ -168,12 +193,12 @@ public class WaveFormCollapse {
             int y = cell[1];
             int z = cell[2];
 
-            // Check all six directions
+            // Check all twenty-six directions
             for (int dir = 0; dir < 26; dir++) {
                 int nx = x + DELTAS[dir][0];
                 int ny = y + DELTAS[dir][1];
                 int nz = z + DELTAS[dir][2];
-                Direction direction = Direction.values()[dir];
+                Direction direction = DIRECTIONS[dir];
 
                 checkAndUpdateNeighbor(x, y, z, nx, ny, nz, direction);
             }
@@ -261,18 +286,6 @@ public class WaveFormCollapse {
                     copy[x][y][z] = collapsed[x][y][z];
         return copy;
     }
-
-    private static final int[][] DELTAS = {
-            // Face (6)
-            {-1, 0, 0}, {0,-1,0}, {1,0,0}, {0,1,0}, {0,0,1}, {0,0,-1},
-            // Edge (12)
-            {-1,-1,0}, {-1,1,0}, {1,-1,0}, {1,1,0},
-            {-1,0,1}, {-1,0,-1}, {1,0,1}, {1,0,-1},
-            {0,-1,1}, {0,-1,-1}, {0,1,1}, {0,1,-1},
-            // Corner (8)
-            {-1,-1,1}, {-1,-1,-1}, {-1,1,1}, {-1,1,-1},
-            {1,-1,1}, {1,-1,-1}, {1,1,1}, {1,1,-1}
-    };
 
     // legacy / 2-D only
     public void printGrid() {

@@ -49,225 +49,253 @@ public class Tile implements WfcTile{
         return name;
     }
 
-    public void setGround(boolean isGround){ this.isGround = isGround; }
+    public void setGround(boolean isGround){
+        this.isGround = isGround;
+    }
     public void setAir(boolean isAir){ this.isAir = isAir; }
 
     @Override
-    public Boolean isGround() {
+    public boolean isGround() {
         return isGround;
     }
 
     @Override
-    public Boolean isAir() {
+    public boolean isAir() {
         return isAir;
     }
 
-    private boolean addToWestList(WfcTile neighbor) {
+    @Override
+    public boolean addToWestList(WfcTile neighbor) {
         return neighbor != null && westNeighbors.add(neighbor);
     }
-    private boolean addToNorthList(WfcTile neighbor) {
+    @Override
+    public boolean addToNorthList(WfcTile neighbor) {
         return neighbor != null  && northNeighbors.add(neighbor);
     }
-    private boolean addToEastList(WfcTile neighbor)  {
+    @Override
+    public boolean addToEastList(WfcTile neighbor)  {
         return neighbor != null && eastNeighbors.add(neighbor);
     }
-    private boolean addToSouthList(WfcTile neighbor) {
+    @Override
+    public boolean addToSouthList(WfcTile neighbor) {
         return neighbor != null && southNeighbors.add(neighbor);
     }
-    private boolean addToAboveList(WfcTile neighbor) {
+    @Override
+    public boolean addToAboveList(WfcTile neighbor) {
         return neighbor != null && aboveNeighbors.add(neighbor);
     }
-    private boolean addToBelowList(WfcTile neighbor) {
+    @Override
+    public boolean addToBelowList(WfcTile neighbor) {
         return neighbor != null && belowNeighbors.add(neighbor);
     }
-    private boolean addToWestNorthList(WfcTile neighbor){
+    @Override
+    public boolean addToWestNorthList(WfcTile neighbor){
         return neighbor != null && westNorthNeighbors.add(neighbor);
     }
-    private boolean addToWestSouthList(WfcTile neighbor){
+    @Override
+    public boolean addToWestSouthList(WfcTile neighbor){
         return neighbor != null && westSouthNeighbors.add(neighbor);
     }
-    private boolean addToEastNorthList(WfcTile neighbor){
+    @Override
+    public boolean addToEastNorthList(WfcTile neighbor){
         return neighbor != null && eastNorthNeighbors.add(neighbor);
     }
-    private boolean addToEastSouthList(WfcTile neighbor){
+    @Override
+    public boolean addToEastSouthList(WfcTile neighbor){
         return neighbor != null && eastSouthNeighbors.add(neighbor);
     }
-    private boolean addToWestAboveList(WfcTile neighbor){
+    @Override
+    public boolean addToWestAboveList(WfcTile neighbor){
         return neighbor != null && westAboveNeighbors.add(neighbor);
     }
-    private boolean addToWestBelowList(WfcTile neighbor){
+    @Override
+    public boolean addToWestBelowList(WfcTile neighbor){
         return neighbor != null && westBelowNeighbors.add(neighbor);
     }
-    private boolean addToEastAboveList(WfcTile neighbor){
+    @Override
+    public boolean addToEastAboveList(WfcTile neighbor){
         return neighbor != null && eastAboveNeighbors.add(neighbor);
     }
-    private boolean addToEastBelowList(WfcTile neighbor){
+    @Override
+    public boolean addToEastBelowList(WfcTile neighbor){
         return neighbor != null && eastBelowNeighbors.add(neighbor);
     }
-    private boolean addToNorthAboveList(WfcTile neighbor){
+    @Override
+    public boolean addToNorthAboveList(WfcTile neighbor){
         return neighbor != null && northAboveNeighbors.add(neighbor);
     }
-    private boolean addToNorthBelowList(WfcTile neighbor){
+    @Override
+    public boolean addToNorthBelowList(WfcTile neighbor){
         return neighbor != null && northBelowNeighbors.add(neighbor);
     }
-    private boolean addToSouthAboveList(WfcTile neighbor){
+    @Override
+    public boolean addToSouthAboveList(WfcTile neighbor){
         return neighbor != null && southAboveNeighbors.add(neighbor);
     }
-    private boolean addToSouthBelowList(WfcTile neighbor){
+    @Override
+    public boolean addToSouthBelowList(WfcTile neighbor){
         return neighbor != null && southBelowNeighbors.add(neighbor);
     }
-    private boolean addToWestNorthAboveList(WfcTile neighbor){
+    @Override
+    public boolean addToWestNorthAboveList(WfcTile neighbor){
         return neighbor != null && westNorthAboveNeighbors.add(neighbor);
     }
-    private boolean addToWestNorthBelowList(WfcTile neighbor){
+    @Override
+    public boolean addToWestNorthBelowList(WfcTile neighbor){
         return neighbor != null && westNorthBelowNeighbors.add(neighbor);
     }
-    private boolean addToWestSouthAboveList(WfcTile neighbor){
+    @Override
+    public boolean addToWestSouthAboveList(WfcTile neighbor){
         return neighbor != null && westSouthAboveNeighbors.add(neighbor);
     }
-    private boolean addToWestSouthBelowList(WfcTile neighbor){
+    @Override
+    public boolean addToWestSouthBelowList(WfcTile neighbor){
         return neighbor != null && westSouthBelowNeighbors.add(neighbor);
     }
-    private boolean addToEastNorthAboveList(WfcTile neighbor){
+    @Override
+    public boolean addToEastNorthAboveList(WfcTile neighbor){
         return neighbor != null && eastNorthAboveNeighbors.add(neighbor);
     }
-    private boolean addToEastNorthBelowList(WfcTile neighbor){
+    @Override
+    public boolean addToEastNorthBelowList(WfcTile neighbor){
         return neighbor != null && eastNorthBelowNeighbors.add(neighbor);
     }
-    private boolean addToEastSouthAboveList(WfcTile neighbor){
+    @Override
+    public boolean addToEastSouthAboveList(WfcTile neighbor){
         return neighbor != null && eastSouthAboveNeighbors.add(neighbor);
     }
-    private boolean addToEastSouthBelowList(WfcTile neighbor){
+    @Override
+    public boolean addToEastSouthBelowList(WfcTile neighbor){
         return neighbor != null && eastSouthBelowNeighbors.add(neighbor);
     }
 
     public void addNeighborToTheWest(WfcTile neighbor) {
-        if (addToWestList(neighbor) && !neighbor.getEastNeighbors().contains(this)) {
+        if (addToWestList(neighbor)) {
             neighbor.addNeighborToTheEast(this);
         }
     }
     public void addNeighborToTheEast(WfcTile neighbor) {
-        if (addToEastList(neighbor) && !neighbor.getWestNeighbors().contains(this)) {
+        if (addToEastList(neighbor)) {
             neighbor.addNeighborToTheWest(this);
         }
     }
     public void addNeighborToTheNorth(WfcTile neighbor) {
-        if (addToNorthList(neighbor) && !neighbor.getSouthNeighbors().contains(this)) {
+        if (addToNorthList(neighbor)) {
             neighbor.addNeighborToTheSouth(this);
         }
     }
     public void addNeighborToTheSouth(WfcTile neighbor) {
-        if (addToSouthList(neighbor) && !neighbor.getNorthNeighbors().contains(this)) {
+        if (addToSouthList(neighbor)) {
             neighbor.addNeighborToTheNorth(this);
         }
     }
     public void addNeighborToTheAbove(WfcTile neighbor) {
-        if (addToAboveList(neighbor) && !neighbor.getBelowNeighbors().contains(this)) {
+        if (addToAboveList(neighbor)) {
             neighbor.addNeighborToTheBelow(this);
         }
     }
     public void addNeighborToTheBelow(WfcTile neighbor) {
-        if (addToBelowList(neighbor) && !neighbor.getAboveNeighbors().contains(this)) {
+        if (addToBelowList(neighbor)) {
             neighbor.addNeighborToTheAbove(this);
         }
     }
     public void addNeighborToTheWestNorth(WfcTile neighbor){
-        if(addToWestNorthList(neighbor) && !neighbor.getEastSouthNeighbors().contains(this)){
+        if(addToWestNorthList(neighbor)) {
             neighbor.addNeighborToTheEastSouth(this);
         }
     }
     public void addNeighborToTheWestSouth(WfcTile neighbor){
-        if(addToWestSouthList(neighbor) && !neighbor.getEastNorthNeighbors().contains(this)){
+        if(addToWestSouthList(neighbor)) {
             neighbor.addNeighborToTheEastNorth(this);
         }
     }
     public void addNeighborToTheEastNorth(WfcTile neighbor){
-        if(addToEastNorthList(neighbor) && !neighbor.getWestSouthNeighbors().contains(this)){
+        if(addToEastNorthList(neighbor)) {
             neighbor.addNeighborToTheWestSouth(this);
         }
     }
     public void addNeighborToTheEastSouth(WfcTile neighbor){
-        if(addToEastSouthList(neighbor) && !neighbor.getWestNorthNeighbors().contains(this)){
+        if(addToEastSouthList(neighbor)) {
             neighbor.addNeighborToTheWestNorth(this);
         }
     }
     public void addNeighborToTheWestAbove(WfcTile neighbor){
-        if(addToWestAboveList(neighbor) && !neighbor.getEastBelowNeighbors().contains(this)){
+        if(addToWestAboveList(neighbor)) {
             neighbor.addNeighborToTheEastBelow(this);
         }
     }
     public void addNeighborToTheWestBelow(WfcTile neighbor){
-        if(addToWestBelowList(neighbor) && !neighbor.getEastAboveNeighbors().contains(this)){
+        if(addToWestBelowList(neighbor)) {
             neighbor.addNeighborToTheEastAbove(this);
         }
     }
     public void addNeighborToTheEastAbove(WfcTile neighbor){
-        if(addToEastAboveList(neighbor) && !neighbor.getWestBelowNeighbors().contains(this)){
+        if(addToEastAboveList(neighbor)) {
             neighbor.addNeighborToTheWestBelow(this);
         }
     }
     public void addNeighborToTheEastBelow(WfcTile neighbor){
-        if(addToEastBelowList(neighbor) && !neighbor.getWestAboveNeighbors().contains(this)){
+        if(addToEastBelowList(neighbor)) {
             neighbor.addNeighborToTheWestAbove(this);
         }
     }
     public void addNeighborToTheNorthAbove(WfcTile neighbor){
-        if(addToNorthAboveList(neighbor) && !neighbor.getSouthBelowNeighbors().contains(this)){
+        if(addToNorthAboveList(neighbor)) {
             neighbor.addNeighborToTheSouthBelow(this);
         }
     }
     public void addNeighborToTheNorthBelow(WfcTile neighbor){
-        if(addToNorthBelowList(neighbor) && !neighbor.getSouthAboveNeighbors().contains(this)){
+        if(addToNorthBelowList(neighbor)) {
             neighbor.addNeighborToTheSouthAbove(this);
         }
     }
     public void addNeighborToTheSouthAbove(WfcTile neighbor){
-        if(addToSouthAboveList(neighbor) && !neighbor.getNorthBelowNeighbors().contains(this)){
+        if(addToSouthAboveList(neighbor)) {
             neighbor.addNeighborToTheNorthBelow(this);
         }
     }
     public void addNeighborToTheSouthBelow(WfcTile neighbor){
-        if(addToSouthBelowList(neighbor) && !neighbor.getNorthAboveNeighbors().contains(this)){
+        if(addToSouthBelowList(neighbor)) {
             neighbor.addNeighborToTheNorthAbove(this);
         }
     }
     public void addNeighborToTheWestNorthAbove(WfcTile neighbor){
-        if(addToWestNorthAboveList(neighbor) && !neighbor.getEastSouthBelowNeighbors().contains(this)){
+        if(addToWestNorthAboveList(neighbor)) {
             neighbor.addNeighborToTheEastSouthBelow(this);
         }
     }
     public void addNeighborToTheWestNorthBelow(WfcTile neighbor){
-        if(addToWestNorthBelowList(neighbor) && !neighbor.getEastSouthAboveNeighbors().contains(this)){
+        if(addToWestNorthBelowList(neighbor)) {
                 neighbor.addNeighborToTheEastSouthAbove(this);
         }
     }
     public void addNeighborToTheWestSouthAbove(WfcTile neighbor){
-        if(addToWestSouthAboveList(neighbor) && !neighbor.getEastNorthBelowNeighbors().contains(this)){
+        if(addToWestSouthAboveList(neighbor)) {
             neighbor.addNeighborToTheEastNorthBelow(this);
         }
     }
     public void addNeighborToTheWestSouthBelow(WfcTile neighbor){
-        if(addToWestSouthBelowList(neighbor) && !neighbor.getEastNorthAboveNeighbors().contains(this)){
+        if(addToWestSouthBelowList(neighbor)) {
             neighbor.addNeighborToTheEastNorthAbove(this);
         }
     }
     public void addNeighborToTheEastNorthAbove(WfcTile neighbor){
-        if(addToEastNorthAboveList(neighbor) && !neighbor.getWestSouthBelowNeighbors().contains(this)){
+        if(addToEastNorthAboveList(neighbor)) {
             neighbor.addNeighborToTheWestSouthBelow(this);
         }
     }
     public void addNeighborToTheEastNorthBelow(WfcTile neighbor){
-        if(addToEastNorthBelowList(neighbor) && !neighbor.getWestSouthAboveNeighbors().contains(this)){
+        if(addToEastNorthBelowList(neighbor)) {
             neighbor.addNeighborToTheWestSouthAbove(this);
         }
     }
     public void addNeighborToTheEastSouthAbove(WfcTile neighbor){
-        if(addToEastSouthAboveList(neighbor) && !neighbor.getWestNorthBelowNeighbors().contains(this)){
+        if(addToEastSouthAboveList(neighbor)) {
             neighbor.addNeighborToTheWestNorthBelow(this);
         }
     }
     public void addNeighborToTheEastSouthBelow(WfcTile neighbor){
-        if(addToEastSouthBelowList(neighbor) && !neighbor.getWestNorthAboveNeighbors().contains(this)){
+        if(addToEastSouthBelowList(neighbor)) {
             neighbor.addNeighborToTheWestNorthAbove(this);
         }
     }

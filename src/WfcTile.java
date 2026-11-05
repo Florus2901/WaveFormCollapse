@@ -3,8 +3,8 @@ import java.util.Set;
 public interface WfcTile {
     String getName();
 
-    default Boolean isGround() { return true; }
-    default Boolean isAir(){ return true; }
+    default boolean isGround() { return false; }
+    default boolean isAir(){ return false; }
 
     // Face (6)
     Set<WfcTile> getWestNeighbors();
@@ -37,6 +37,33 @@ public interface WfcTile {
     Set<WfcTile> getEastSouthAboveNeighbors();
     Set<WfcTile> getEastSouthBelowNeighbors();
 
+    default boolean addToWestList(WfcTile neighbor) { return false; }
+    default boolean addToNorthList(WfcTile neighbor) { return false; }
+    default boolean addToEastList(WfcTile neighbor) { return false; }
+    default boolean addToSouthList(WfcTile neighbor) { return false; }
+    default boolean addToAboveList(WfcTile neighbor) { return false; }
+    default boolean addToBelowList(WfcTile neighbor) { return false; }
+    default boolean addToWestNorthList(WfcTile neighbor) { return false; }
+    default boolean addToWestSouthList(WfcTile neighbor) { return false; }
+    default boolean addToEastNorthList(WfcTile neighbor) { return false; }
+    default boolean addToEastSouthList(WfcTile neighbor) { return false; }
+    default boolean addToWestAboveList(WfcTile neighbor) { return false; }
+    default boolean addToWestBelowList(WfcTile neighbor) { return false; }
+    default boolean addToEastAboveList(WfcTile neighbor) { return false; }
+    default boolean addToEastBelowList(WfcTile neighbor) { return false; }
+    default boolean addToNorthAboveList(WfcTile neighbor) { return false; }
+    default boolean addToNorthBelowList(WfcTile neighbor) { return false; }
+    default boolean addToSouthAboveList(WfcTile neighbor) { return false; }
+    default boolean addToSouthBelowList(WfcTile neighbor) { return false; }
+    default boolean addToWestNorthAboveList(WfcTile neighbor) { return false; }
+    default boolean addToWestNorthBelowList(WfcTile neighbor) { return false; }
+    default boolean addToWestSouthAboveList(WfcTile neighbor) { return false; }
+    default boolean addToWestSouthBelowList(WfcTile neighbor) { return false; }
+    default boolean addToEastNorthAboveList(WfcTile neighbor) { return false; }
+    default boolean addToEastNorthBelowList(WfcTile neighbor) { return false; }
+    default boolean addToEastSouthAboveList(WfcTile neighbor) { return false; }
+    default boolean addToEastSouthBelowList(WfcTile neighbor) { return false; }
+
     default void addNeighborToTheWest(WfcTile neighbor) {}
     default void addNeighborToTheNorth(WfcTile neighbor) {}
     default void addNeighborToTheEast(WfcTile neighbor) {}
@@ -63,6 +90,4 @@ public interface WfcTile {
     default void addNeighborToTheEastNorthBelow(WfcTile neighbor){}
     default void addNeighborToTheEastSouthAbove(WfcTile neighbor){}
     default void addNeighborToTheEastSouthBelow(WfcTile neighbor){}
-
-
 }

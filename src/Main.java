@@ -4,11 +4,12 @@ import java.util.List;
 public class Main {
 
     public static List<WfcTile> tiles;
-    public static int w = 10, h = 10, d = 4;
+    public static int w = 100, h = 100, d = 1;
     public static WaveFormCollapse wfc;
 
     public static void main(String[] args) {
         tiles = new ArrayList<>();
+
 
         Tile water = new Tile("Water", true, false);
         Tile grass = new Tile("Grass", true, false );
@@ -24,6 +25,21 @@ public class Main {
         tiles.add(mountain);
         tiles.add(air);
         tiles.add(cloud);
+
+//        addNeighbor(water, water);
+//        addNeighbor(water, grass);
+//        addNeighbor(grass, grass);
+//        addNeighbor(grass, forest);
+//        addNeighbor(grass, hills);
+//        addNeighbor(forest, forest);
+//        addNeighbor(hills, hills);
+//        addNeighbor(hills, mountain);
+//        addNeighbor(mountain, mountain);
+//
+//        for(WfcTile tile : tiles){
+//            addNeighbor(air, tile);
+//            addNeighbor(cloud, tile);
+//        }
 
         generateTileNeighbors(tiles);
 
@@ -50,80 +66,88 @@ public class Main {
 
     private static void generateTileNeighbors(List<WfcTile> tiles){
         for(WfcTile tile : tiles){
-            for(WfcTile neighbors : tiles) {
-                if(tile.isGround() && neighbors.isGround() || tile.isAir() && neighbors.isAir()){
-                    tile.addNeighborToTheNorth(neighbors);
-                    tile.addNeighborToTheWestNorth(neighbors);
-                    tile.addNeighborToTheWest(neighbors);
-                    tile.addNeighborToTheWestSouth(neighbors);
-                    tile.addNeighborToTheSouth(neighbors);
-                    tile.addNeighborToTheEastSouth(neighbors);
-                    tile.addNeighborToTheEast(neighbors);
-                    tile.addNeighborToTheEastNorth(neighbors);
-                }
-                if(tile.isGround() && neighbors.isGround()){
-                    tile.addNeighborToTheBelow(neighbors);
-                    tile.addNeighborToTheNorthBelow(neighbors);
-                    tile.addNeighborToTheEastNorthBelow(neighbors);
-                    tile.addNeighborToTheEastBelow(neighbors);
-                    tile.addNeighborToTheEastSouthBelow(neighbors);
-                    tile.addNeighborToTheSouthBelow(neighbors);
-                    tile.addNeighborToTheWestSouthBelow(neighbors);
-                    tile.addNeighborToTheWestBelow(neighbors);
-                    tile.addNeighborToTheWestNorthBelow(neighbors);
-                    tile.addNeighborToTheAbove(neighbors);
-                    tile.addNeighborToTheNorthAbove(neighbors);
-                    tile.addNeighborToTheEastNorthAbove(neighbors);
-                    tile.addNeighborToTheEastAbove(neighbors);
-                    tile.addNeighborToTheEastSouthAbove(neighbors);
-                    tile.addNeighborToTheSouthAbove(neighbors);
-                    tile.addNeighborToTheWestSouthAbove(neighbors);
-                    tile.addNeighborToTheWestAbove(neighbors);
-                    tile.addNeighborToTheWestNorthAbove(neighbors);
-                }
-                if(tile.isAir() && neighbors.isAir()){
-                    tile.addNeighborToTheAbove(neighbors);
-                    tile.addNeighborToTheNorthAbove(neighbors);
-                    tile.addNeighborToTheEastNorthAbove(neighbors);
-                    tile.addNeighborToTheEastAbove(neighbors);
-                    tile.addNeighborToTheEastSouthAbove(neighbors);
-                    tile.addNeighborToTheSouthAbove(neighbors);
-                    tile.addNeighborToTheWestSouthAbove(neighbors);
-                    tile.addNeighborToTheWestAbove(neighbors);
-                    tile.addNeighborToTheWestNorthAbove(neighbors);
-                    tile.addNeighborToTheBelow(neighbors);
-                    tile.addNeighborToTheNorthBelow(neighbors);
-                    tile.addNeighborToTheEastNorthBelow(neighbors);
-                    tile.addNeighborToTheEastBelow(neighbors);
-                    tile.addNeighborToTheEastSouthBelow(neighbors);
-                    tile.addNeighborToTheSouthBelow(neighbors);
-                    tile.addNeighborToTheWestSouthBelow(neighbors);
-                    tile.addNeighborToTheWestBelow(neighbors);
-                    tile.addNeighborToTheWestNorthBelow(neighbors);
-                }
-                if(tile.isGround() && neighbors.isAir()){
-                    tile.addNeighborToTheAbove(neighbors);
-                    tile.addNeighborToTheNorthAbove(neighbors);
-                    tile.addNeighborToTheEastNorthAbove(neighbors);
-                    tile.addNeighborToTheEastAbove(neighbors);
-                    tile.addNeighborToTheEastSouthAbove(neighbors);
-                    tile.addNeighborToTheSouthAbove(neighbors);
-                    tile.addNeighborToTheWestSouthAbove(neighbors);
-                    tile.addNeighborToTheWestAbove(neighbors);
-                    tile.addNeighborToTheWestNorthAbove(neighbors);
-                }
-                if(tile.isAir() && neighbors.isGround()){
-                    tile.addNeighborToTheBelow(neighbors);
-                    tile.addNeighborToTheNorthBelow(neighbors);
-                    tile.addNeighborToTheEastNorthBelow(neighbors);
-                    tile.addNeighborToTheEastBelow(neighbors);
-                    tile.addNeighborToTheEastSouthBelow(neighbors);
-                    tile.addNeighborToTheSouthBelow(neighbors);
-                    tile.addNeighborToTheWestSouthBelow(neighbors);
-                    tile.addNeighborToTheWestBelow(neighbors);
-                    tile.addNeighborToTheWestNorthBelow(neighbors);
-                }
+            for(WfcTile neighbor : tiles) {
+                addNeighbor(tile, neighbor);
             }
+        }
+    }
+
+    private static void addNeighbor(WfcTile tile, WfcTile neighbor){
+        if (tile == null || neighbor == null) return;
+        boolean bothGround = tile.isGround() && neighbor.isGround();
+        boolean bothAir    = tile.isAir() && neighbor.isAir();
+
+        if(bothGround || bothAir){
+            tile.addNeighborToTheNorth(neighbor);
+            tile.addNeighborToTheWestNorth(neighbor);
+            tile.addNeighborToTheWest(neighbor);
+            tile.addNeighborToTheWestSouth(neighbor);
+            tile.addNeighborToTheSouth(neighbor);
+            tile.addNeighborToTheEastSouth(neighbor);
+            tile.addNeighborToTheEast(neighbor);
+            tile.addNeighborToTheEastNorth(neighbor);
+        }
+        if(bothGround){
+            tile.addNeighborToTheBelow(neighbor);
+            tile.addNeighborToTheNorthBelow(neighbor);
+            tile.addNeighborToTheEastNorthBelow(neighbor);
+            tile.addNeighborToTheEastBelow(neighbor);
+            tile.addNeighborToTheEastSouthBelow(neighbor);
+            tile.addNeighborToTheSouthBelow(neighbor);
+            tile.addNeighborToTheWestSouthBelow(neighbor);
+            tile.addNeighborToTheWestBelow(neighbor);
+            tile.addNeighborToTheWestNorthBelow(neighbor);
+            tile.addNeighborToTheAbove(neighbor);
+            tile.addNeighborToTheNorthAbove(neighbor);
+            tile.addNeighborToTheEastNorthAbove(neighbor);
+            tile.addNeighborToTheEastAbove(neighbor);
+            tile.addNeighborToTheEastSouthAbove(neighbor);
+            tile.addNeighborToTheSouthAbove(neighbor);
+            tile.addNeighborToTheWestSouthAbove(neighbor);
+            tile.addNeighborToTheWestAbove(neighbor);
+            tile.addNeighborToTheWestNorthAbove(neighbor);
+        }
+        if(bothAir){
+            tile.addNeighborToTheAbove(neighbor);
+            tile.addNeighborToTheNorthAbove(neighbor);
+            tile.addNeighborToTheEastNorthAbove(neighbor);
+            tile.addNeighborToTheEastAbove(neighbor);
+            tile.addNeighborToTheEastSouthAbove(neighbor);
+            tile.addNeighborToTheSouthAbove(neighbor);
+            tile.addNeighborToTheWestSouthAbove(neighbor);
+            tile.addNeighborToTheWestAbove(neighbor);
+            tile.addNeighborToTheWestNorthAbove(neighbor);
+            tile.addNeighborToTheBelow(neighbor);
+            tile.addNeighborToTheNorthBelow(neighbor);
+            tile.addNeighborToTheEastNorthBelow(neighbor);
+            tile.addNeighborToTheEastBelow(neighbor);
+            tile.addNeighborToTheEastSouthBelow(neighbor);
+            tile.addNeighborToTheSouthBelow(neighbor);
+            tile.addNeighborToTheWestSouthBelow(neighbor);
+            tile.addNeighborToTheWestBelow(neighbor);
+            tile.addNeighborToTheWestNorthBelow(neighbor);
+        }
+        if(tile.isGround() && neighbor.isAir()){
+            tile.addNeighborToTheAbove(neighbor);
+            tile.addNeighborToTheNorthAbove(neighbor);
+            tile.addNeighborToTheEastNorthAbove(neighbor);
+            tile.addNeighborToTheEastAbove(neighbor);
+            tile.addNeighborToTheEastSouthAbove(neighbor);
+            tile.addNeighborToTheSouthAbove(neighbor);
+            tile.addNeighborToTheWestSouthAbove(neighbor);
+            tile.addNeighborToTheWestAbove(neighbor);
+            tile.addNeighborToTheWestNorthAbove(neighbor);
+        }
+        if(tile.isAir() && neighbor.isGround()){
+            tile.addNeighborToTheBelow(neighbor);
+            tile.addNeighborToTheNorthBelow(neighbor);
+            tile.addNeighborToTheEastNorthBelow(neighbor);
+            tile.addNeighborToTheEastBelow(neighbor);
+            tile.addNeighborToTheEastSouthBelow(neighbor);
+            tile.addNeighborToTheSouthBelow(neighbor);
+            tile.addNeighborToTheWestSouthBelow(neighbor);
+            tile.addNeighborToTheWestBelow(neighbor);
+            tile.addNeighborToTheWestNorthBelow(neighbor);
         }
     }
 
